@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Елена Вахтурова](https://up.htmlacademy.ru/javascript/20/user/247116).
-* Наставник: `Неизвестно`.
+* Наставник: `Без наставника`.
 
 ---
 
