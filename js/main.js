@@ -26,10 +26,10 @@ var getRandomNumber = function (min, max) {
 };
 
 // функция для определения случайного элемента массива
-function getRandomElement(arr) {
+var getRandomElement = function (arr) {
   var rand = Math.floor(Math.random() * arr.length);
   return arr[rand];
-}
+};
 
 var map = document.querySelector('.map');
 map.classList.remove('map--faded');
@@ -51,7 +51,7 @@ var getRandomPin = function () {
       'checkout': getRandomElement(CHECKOUT_LIST),
       'features': getRandomElement(FEATURES_LIST),
       'description': getRandomElement(DESCRIPTION_LIST),
-      'photos': getRandomElement(PHOTOS_LIST)
+      'photos': PHOTOS_LIST
     },
     'location': {
       'x': getRandomNumber(GAP, MAP_WIDTH - GAP),
@@ -77,7 +77,7 @@ var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pi
 // создаем
 var createPin = function (data) {
   var pinElement = pinTemplate.cloneNode(true);
-  var pinPicture = document.querySelector('img');
+  var pinPicture = pinElement.querySelector('img');
 
   pinElement.style.left = data.location.x - PIN_WIDTH / 2 + 'px';
   pinElement.style.top = data.location.y - PIN_HEIGHT + 'px';
