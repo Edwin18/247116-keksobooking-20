@@ -17,8 +17,7 @@ var TITLE_LIST = [
   'При длительной брони скидка'
 ];
 var HOUSING_LIST = ['Дворец', 'Квартира', 'Дом', 'Бунгало'];
-var CHECKIN_LIST = ['12:00', '13:00', '14:00'];
-var CHECKOUT_LIST = ['12:00', '13:00', '14:00'];
+var TIME_LIST = ['12:00', '13:00', '14:00'];
 var FEATURES_LIST = [
   'wifi',
   'dishwasher',
@@ -93,8 +92,8 @@ var getRandomPin = function () {
       'type': getRandomElement(HOUSING_LIST),
       'rooms': getRandomNumber(1, 100),
       'guests': getRandomNumber(1, 100),
-      'checkin': getRandomElement(CHECKIN_LIST),
-      'checkout': getRandomElement(CHECKOUT_LIST),
+      'checkin': getRandomElement(TIME_LIST),
+      'checkout': getRandomElement(TIME_LIST),
       'features': getRandomArray(FEATURES_LIST).join(', '),
       'description': getRandomElement(DESCRIPTION_LIST),
       'photos': getRandomArray(PHOTOS_LIST)
@@ -178,15 +177,17 @@ var getCardPin = function (data) {
   cardElement.querySelector('.popup__features').textContent = data.offer.features;
   cardElement.querySelector('.popup__description').textContent = data.offer.description;
 
-  for (var y = 0; y < data.offer.photos.length; y++) {
-    var cardPhotos = cardElement.querySelector('.popup__photos');
-    var cardPhoto = cardElement.querySelector('.popup__photos .popup__photo').cloneNode(true);
-
-    cardPhoto.src = data.offer.photos[y];
-
-    cardPhotos.appendChild(cardPhoto);
-    cardElement.appendChild(cardPhotos);
+  var fragment = document.createDocumentFragment();
+  for (var j = 0; j < data.offer.photos.length; j++) {
+    var cardPhoto = document.createElement('img');
+    cardPhoto.src = data.offer.photos[j];
+    cardPhoto.width = 45;
+    cardPhoto.height = 44;
+    fragment.appendChild(cardPhoto);
   }
+  var cardPhotos = cardElement.querySelector('.popup__photos');
+  cardPhotos.innerHTML = '';
+  cardPhotos.appendChild(fragment);
 
   cardElement.querySelector('.popup__avatar').textContent = data.author.avatar;
 
