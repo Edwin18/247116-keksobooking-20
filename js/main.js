@@ -39,24 +39,23 @@ var PHOTOS_LIST = [
 var PRICE_MIN = 0;
 var PRICE_MAX = 1000000;
 
-var markSize = {
-  HEIGHT: 70,
-  RADIUS: 50 / 2
+var MARK_SIZE = {
+  HEIGHT: 84,
+  RADIUS: 62 / 2
 };
 
 var GAP = 20;
-var LOCATION_MIN_X = GAP + markSize.RADIUS;
+var LOCATION_MIN_X = GAP + MARK_SIZE.RADIUS;
 var LOCATION_MIN_Y = 130;
-var LOCATION_MAX_Y = 630;
+var LOCATION_MAX_Y = 630 - MARK_SIZE.HEIGHT;
 
 var marksCount = 8;
 
 var LEFT_MOUSE_BUTTON = 0;
-var ENTER_BUTTON = 'Enter';
+var ENTER = 'Enter';
 
 var map = document.querySelector('.map');
 var markField = document.querySelector('.map__pins');
-// map.classList.remove('map--faded');
 
 var getRandomNumber = function (min, max) {
   return Math.round(min - 0.5 + Math.random() * (max - min + 1));
@@ -78,18 +77,18 @@ var getRandomArray = function (arr) {
 };
 
 // создаем объявление - объект с описанием жилья
-var LOCATION_MAX_X = markField.clientWidth - GAP - markSize.RADIUS;
-var locationX = getRandomNumber(LOCATION_MIN_X, getRandomNumber(LOCATION_MIN_X, LOCATION_MAX_X));
-var locationY = getRandomNumber(LOCATION_MIN_Y, LOCATION_MAX_Y);
-
 var generateAdvert = function () {
+  var LOCATION_MAX_X = markField.clientWidth - GAP - MARK_SIZE.RADIUS;
+  var locationX = getRandomNumber(LOCATION_MIN_X, getRandomNumber(LOCATION_MIN_X, LOCATION_MAX_X));
+  var locationY = getRandomNumber(LOCATION_MIN_Y, LOCATION_MAX_Y);
+
   return {
     'author': {
       'avatar': getRandomElement(AVATAR_LIST)
     },
     'offer': {
       'title': getRandomElement(TITLE_LIST),
-      'address': locationX + ', ' + locationY,
+      'address': getRandomNumber(GAP, document.querySelector('.map__pins').offsetWidth - GAP) + ', ' + locationY,
       'price': getRandomNumber(PRICE_MIN, PRICE_MAX),
       'type': getRandomElement(HOUSING_LIST),
       'rooms': getRandomNumber(1, 100),
@@ -98,7 +97,7 @@ var generateAdvert = function () {
       'checkout': getRandomElement(TIME_LIST),
       'features': getRandomArray(FEATURES_LIST).join(', '),
       'description': getRandomElement(DESCRIPTION_LIST),
-      'photos': getRandomArray(PHOTOS_LIST).join(', ') // тут вопрос о правильности
+      'photos': getRandomArray(PHOTOS_LIST)// тут должен быть массив случайной длxcv
     },
     'location': {
       x: locationX,
@@ -107,7 +106,7 @@ var generateAdvert = function () {
   };
 };
 
-// создаем массив наших объектов
+// создаем массив наших объявлений
 var generateAdverts = function () {
   var advertsArr = [];
 
@@ -125,8 +124,8 @@ var createMark = function (data) {
   var markElement = markTemplate.cloneNode(true);
   var markImg = markElement.querySelector('img');
 
-  markElement.style.left = data.location.x + markSize.RADIUS + 'px';
-  markElement.style.top = data.location.y + markSize.HEIGHT + 'px';
+  markElement.style.left = data.location.x + MARK_SIZE.RADIUS + 'px';
+  markElement.style.top = data.location.y + MARK_SIZE.HEIGHT + 'px';
 
   markImg.src = data.author.avatar;
   markImg.alt = data.offer.title;
@@ -152,8 +151,8 @@ var hideBlock = function (block) {
   var availability = block.children.length;
   block.style.display = availability === 0 ? 'none': '';
 } // Если данных для заполнения не хватает, соответствующий блок в карточке скрывается
-  // не понимаю как сделать
-
+  // не понимаю как сделать*/
+/*
 // создаем объявление
 var generateCard = function (data) {
   var cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
@@ -207,78 +206,86 @@ var generateCard = function (data) {
 var renderCard = function () {
   var fragment = document.createDocumentFragment();
 
-  fragment.appendChild(generatedCard(adverts[0]));
+  fragment.appendChild(generateCard(adverts[0]));
   markField.appendChild(fragment);
 };
 
 renderCard();
 */
 
-var filterForms = document.querySelector('.map__filters');
-filterForms.classList.add('ad-form--disabled');
-/*
-var filterFormElements = document.querySelectorAll('.ad-form__element');
-
-var setDisabled = function () {
-  for (var i = 0; i < filterFormElements.length; i++) {
-    filterFormElements[i].setAttribute('disabled', 'disabled');
-  }
-};
-
-setDisabled();
-
-var removeDisabled = function () {
-  for (var i = 0; i < filterFormElements.length; i++) {
-    filterFormElements[i].removeAttribute('disabled', 'disabled');
-  }
-};
-
-var adForm = document.querySelector('.ad-form');
+var formAdvert = document.querySelector('.ad-form');
+var formAdvertBlocks = formAdvert.children;
+var formFilters = document.querySelector('.map__filters');
+var formFiltersBlocks = formFilters.children;
 var markMain = document.querySelector('.map__pin--main');
-var adressInput = adForm.querySelector('#address');
+var blockAdress = formAdvert.querySelector('#address');
+
+var disableBlock = function (block) {
+  block.disabled = true;
+};
+
+var enableBlock = function (block) {
+  block.disabled = false;
+};
+
+var turnBlocks = function (blocks, turnFunction) {
+  for (var i = 0; i < blocks.length; i++) {
+    turnFunction(blocks[i]);
+  }
+};
+
+var fillFieldAdress = function () {
+  var addressTop = parseInt(markMain.style.top, 10) + MARK_SIZE.HEIGHT;
+  var addressLeft = parseInt(markMain.style.left, 10) + MARK_SIZE.RADIUS;
+  return Math.round(addressLeft) + ', ' + Math.round(addressTop);
+};
+
+turnBlocks(formAdvertBlocks, disableBlock);
+turnBlocks(formFiltersBlocks, disableBlock);
+blockAdress.value = fillFieldAdress();
 
 var activePage = function () {
-  adressInput.value = markMain.offsetLeft + ' ' + markMain.offsetTop;
-  renderMarks();
   map.classList.remove('map--faded');
-  adForm.classList.remove('ad-form--disabled');
-  filterForms.classList.remove('ad-form--disabled');
-  removeDisabled();
+  formAdvert.classList.remove('ad-form--disabled');
+  renderMarks(createMark);
+  turnBlocks(formAdvertBlocks, enableBlock);
+  turnBlocks(formFiltersBlocks, enableBlock);
 };
+
+markMain.addEventListener('keydown', function (evt) {
+  if (evt.key === ENTER) {
+    evt.preventDefault();
+    blockAdress.value = fillFieldAdress();
+    activePage();
+  }
+});
 
 markMain.addEventListener('mousedown', function (evt) {
   if (evt.button === LEFT_MOUSE_BUTTON) {
+    evt.preventDefault();
     activePage();
   }
 });
 
-markMain.addEventListener('keydown', function (evt) {
-  if (evt.key === ENTER_BUTTON) {
-    activePage();
-  }
-});
-
-// валидация количества гостей и комнат
-
-var roomNum = document.querySelector('#room_number');
-var guestNum = document.querySelector('#capacity');
+var roomNumber = document.querySelector('#room_number');
+var guestNumber = document.querySelector('#capacity');
 
 var getRoomValidated = function () {
-  if (roomNum.value === '100') {
-    roomNum.setCustomValidity('Это предложение не для гостей');
-  } else if (roomNum.value < guestNum.value) {
-    roomNum.setCustomValidity('Недостаточно места для выбранного количества гостей');
-  } else if (roomNum.value > guestNum.value) {
-    roomNum.setCustomValidity('Это предложение для большего числа гостей');
+  if (roomNumber.value === '100') {
+    roomNumber.setCustomValidity('Не предназначено для гостей');
+  } else if (roomNumber.value < guestNumber.value) {
+    roomNumber.setCustomValidity('Выберите больше');
+  } else if (roomNumber.value > guestNumber.value) {
+    roomNumber.setCustomValidity('Выберите меньше');
   } else {
-    roomNum.setCustomValidity('');
+    roomNumber.setCustomValidity('');
   }
 };
 
-roomNum.addEventListener('change', function () {
+roomNumber.addEventListener('change', function () {
   getRoomValidated();
 });
 
-guestNum.addEventListener('change', function () {
+guestNumber.addEventListener('change', function () {
   getRoomValidated();
-});*/
+});
